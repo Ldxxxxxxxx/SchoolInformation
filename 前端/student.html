@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	</head>
+	<body>
+		<div id="app">
+		<el-container style="height: 900px; border: 1px solid #eee">
+		  <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+		    <el-menu :default-openeds="['1', '3']">
+		      <el-submenu index="1">
+		        <template slot="title"><i class="el-icon-menu"></i>学生信息</template>
+		        <el-menu-item-group>
+		         <!-- <template slot="title"></template> -->
+		          <el-menu-item index="1-1">编号</el-menu-item>
+		          <el-menu-item index="1-2">姓名</el-menu-item>
+		        </el-menu-item-group>
+		       <!-- <el-menu-item-group title=""> -->
+		          <el-menu-item index="1-3">年龄</el-menu-item>
+		       <!-- </el-menu-item-group> -->
+		        <el-submenu index="1-4">
+		          <template slot="title">性别</template>
+		         <!-- <el-menu-item index="1-4-1"></el-menu-item> -->
+		        </el-submenu>
+		      </el-submenu>
+		      <el-submenu index="2">
+		        <template slot="title"><i class="el-icon-menu"></i>导航二</template>
+		        <el-menu-item-group>
+		          <template slot="title">分组一</template>
+		          <el-menu-item index="2-1">选项1</el-menu-item>
+		          <el-menu-item index="2-2">选项2</el-menu-item>
+		        </el-menu-item-group>
+		        <el-menu-item-group title="分组2">
+		          <el-menu-item index="2-3">选项3</el-menu-item>
+		        </el-menu-item-group>
+		        <el-submenu index="2-4">
+		          <template slot="title">选项4</template>
+		          <el-menu-item index="2-4-1">选项4-1</el-menu-item>
+		        </el-submenu>
+		      </el-submenu>
+		      <el-submenu index="3">
+		        <template slot="title"><i class="el-icon-setting"></i>导航三</template>
+		        <el-menu-item-group>
+		          <template slot="title">分组一</template>
+		          <el-menu-item index="3-1">选项1</el-menu-item>
+		          <el-menu-item index="3-2">选项2</el-menu-item>
+		        </el-menu-item-group>
+		        <el-menu-item-group title="分组2">
+		          <el-menu-item index="3-3">选项3</el-menu-item>
+		        </el-menu-item-group>
+		        <el-submenu index="3-4">
+		          <template slot="title">选项4</template>
+		          <el-menu-item index="3-4-1">选项4-1</el-menu-item>
+		        </el-submenu>
+		      </el-submenu>
+		    </el-menu>
+		  </el-aside>
+		  
+		  <el-container>
+		    <el-header style="text-align: right; font-size: 12px">
+				<!-- <span @click="logout">学生</span> -->
+		      <el-dropdown>
+		        <i class="el-icon-setting" style="margin-right: 15px"></i>
+		        <el-dropdown-menu slot="dropdown">
+		          <el-dropdown-item @click="logout">
+				  <!-- <a href="" @click="logout">安全退出</a> -->
+				  <span @click="logout">安全退出</span>
+				  </el-dropdown-item>
+		          <el-dropdown-item>
+					  <a href="student.html">刷新</a>
+				  </el-dropdown-item>
+		        </el-dropdown-menu>
+		      </el-dropdown>
+			  
+		      <span>学生管理</span>
+		    </el-header>
+		    <el-main>
+				  <el-row :gutter="20">
+				    <el-col :span="10">
+				      <el-input v-model="search.id" placeholder="输入编号搜索" @input="handleSearch"></el-input>
+				    </el-col>
+				    <el-col :span="11" :offset="2">
+				      <el-input v-model="search.name" placeholder="输入姓名搜索" @input="handleSearch"></el-input>
+				    </el-col>
+				  </el-row>
+				<el-table :data="filteredStudents" style="width: 100%; margin-top: 20px; margin-bottom: 20px;" border>
+				    <el-table-column prop="id" label="编号" width="100"></el-table-column>
+				    <el-table-column prop="name" label="姓名" width="100"></el-table-column>
+				    <el-table-column prop="age" label="年龄" width="100"></el-table-column>
+				    <el-table-column prop="gender" label="性别" width="100"></el-table-column>
+					<el-table-column label="操作" width="200">
+					    <template slot-scope="scope">
+					      <el-button @click="getStudentForUpdate(scope.row)">编辑</el-button>
+					      <el-button type="danger" @click="deleteStudent(scope.row.id)">删除</el-button>
+					    </template>
+					</el-table-column>
+				</el-table>
+				<el-row :gutter="20">
+				  <el-col :span="10">
+				<el-form :model="addStudentForm" @submit.native.prevent="addStudent" label-width="100px">
+				    <el-form-item label="编号">
+				        <el-input v-model="addStudentForm.id"></el-input>
+				    </el-form-item>
+				    <el-form-item label="姓名">
+				        <el-input v-model="addStudentForm.name"></el-input>
+				    </el-form-item>
+				    <el-form-item label="年龄">
+				        <el-input v-model="addStudentForm.age"></el-input>
+				    </el-form-item>
+				    <el-form-item label="性别">
+				        <el-select v-model="addStudentForm.gender" placeholder="请选择性别">
+				            <el-option label="男" value="男"></el-option>
+				            <el-option label="女" value="女"></el-select>
+				        </el-select>
+				    </el-form-item>
+				    <el-form-item>
+				        <el-button type="primary" @click="addStudent">添加学生</el-button>
+				    </el-form-item>
+				</el-form> 
+				</el-col>
+				<el-col :span="11" :offset="2">
+				<!-- <el-dialog :visible.sync="updateDialogVisible" title="更新学生信息"> -->
+				  <el-form :model="updateStudentForm" @submit.native.prevent="updateStudent" style="width: 100%;" label-width="100px">
+				    <el-form-item label="编号">
+				      <el-input v-model="updateStudentForm.id" disabled></el-input>
+				    </el-form-item>
+				    <el-form-item label="姓名">
+				      <el-input v-model="updateStudentForm.name"></el-input>
+				    </el-form-item>
+				    <el-form-item label="年龄">
+				      <el-input v-model="updateStudentForm.age"></el-input>
+				    </el-form-item>
+				    <el-form-item label="性别">
+				      <el-select v-model="updateStudentForm.gender" placeholder="请选择性别">
+				        <el-option label="男" value="男"></el-option>
+				        <el-option label="女" value="女"></el-select>
+				    </el-form-item>
+				    <el-form-item>
+				      <el-button type="primary" @click="updateStudent">更新</el-button>
+				    </el-form-item>
+				  </el-form>
+				  </el-col>
+				  </el-row>
+				<!-- </el-dialog> -->
+		    </el-main>
+		  </el-container>
+		</el-container>
+		</div>
+		<style>
+		  .el-header {
+		    background-color: #B3C0D1;
+		    color: #333;
+		    line-height: 60px;
+		  }
+		  
+		  .el-aside {
+		    color: #333;
+		  }
+		</style>
+		
+		<script src="./js/axios.min.js"></script>
+		<script src="./js/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<script>
+			new Vue({
+				el: '#app',
+				data:{
+					students:[],
+					search: {
+					            id: '',
+					            name: ''
+					        },
+					addStudentForm: {
+					        id: '',
+					        name: '',
+					        age: '',
+					        gender: ''
+					},
+					 updateDialogVisible: false,
+					      updateStudentForm: {
+					        id: '',
+					        name: '',
+					        age: '',
+					        gender: ''
+				},
+				},
+				computed: {
+				        filteredStudents() {
+				            // 过滤 students 数据
+				            let result = this.students;
+				            if (this.search.id) {
+								const searchId = Number(this.search.id);
+				                result = result.filter(s => s.id === searchId);
+				            }
+				            if (this.search.name) {
+				                result = result.filter(s => s.name.includes(this.search.name));
+				            }
+				            return result;
+				        }
+				    },
+				methods:{
+					handleSearch() {
+					            // 每次搜索框输入时触发
+					},
+					loadstudents(){
+						axios.get('http://localhost:9000/student/table').then(res=>{
+							if(res.data.isOk){
+								alert(res.data.msg);
+								this.students = res.data.students;
+							}
+						})
+					},
+				
+				addStudent() {
+					let fd = new FormData();
+					fd.append('id',this.addStudentForm.id);
+					fd.append('name',this.addStudentForm.name);
+					fd.append('age',this.addStudentForm.age);
+					fd.append('gender',this.addStudentForm.gender);
+				        axios.post('http://localhost:9000/student/add', fd, {
+                        headers: {
+                             'Content-Type': 'multipart/form-data', // 设置请求头
+                        }
+                    })
+				            .then(res=> {
+				                if (res.data.isOk) {
+				                    alert(res.data.msg);
+				                    this.loadStudents(); // 刷新学生列表
+				                } else {
+				                    alert('添加失败');
+				                }
+				            })
+						},
+				
+				deleteStudent(id) {
+				    axios.delete('http://localhost:9000/student/del',{params:{id}})
+				      .then(res => {
+				        if (res.data.isOk) {
+				          alert(res.data.msg);
+				          this.loadStudents(); // 刷新学生列表
+				        } else {
+				          alert(res.data.msg);
+				        }
+				      });
+				  },
+				  getStudentForUpdate(student) {
+				      this.updateStudentForm = Object.assign({}, student); // 假设 student 是从后端获取的对象
+				      this.dialogVisible = true; // 假设您有一个对话框来显示表单
+				    },
+				// getStudentForUpdate(studentId) {
+				//     axios.get(`http://localhost:9000/student/get/${student}`)
+				//       .then(res => {
+				//         if (res.data.isOk) {
+				//           this.updateStudentForm = res.data.student;
+				//         } else {
+				//           alert('获取学生信息失败');
+				//         }
+				//       });
+				//   },
+				updateStudent() {
+				    let fd = new FormData();
+				    fd.append('id', this.updateStudentForm.id);
+				    fd.append('name', this.updateStudentForm.name);
+				    fd.append('age', this.updateStudentForm.age);
+				    fd.append('gender', this.updateStudentForm.gender);
+				    axios.put('http://localhost:9000/student/update', fd, {
+				      // headers: {
+				      //   "Content-Type": "multipart/form-data",
+				      // }
+				    })
+				      .then(res => {
+				        if (res.data.isOk) {
+				          alert(res.data.msg);
+				          this.loadStudents(); // 刷新学生列表
+				          this.updateStudentForm = { id: '', name: '', age: '', gender: '' }; // 清空表单
+				        } else {
+				          alert(res.data.msg);
+				        }
+				      });
+				  },
+				//   logout() {
+				//     // 弹出确认对话框
+				//     this.$confirm('您确定要退出登录吗？这将导致您丢失未保存的工作。', '退出登录', {
+				//       confirmButtonText: '确定退出',
+				//       cancelButtonText: '取消',
+				//       type: 'warning'
+				//     }).then(() => {
+				//       // 用户点击确定，执行退出登录操作
+				
+				//       // 清除localStorage中的用户登录状态
+				//       //localStorage.removeItem('isLoggedIn'); // 假设 'isLoggedIn' 是存储登录状态的键
+				
+				//       // 清除sessionStorage中的用户数据
+				//       sessionStorage.clear(); // 清空sessionStorage中的所有数据
+				//       // 跳转到登录页面
+				//       window.location.href = 'login.html'; // 假设登录页面的URL是 '/login'
+				//       // 可选：显示消息提示用户已退出登录
+				//       this.$message.success('您已安全退出！');
+				//     }).catch(() => {
+				//       // 用户点击取消，不执行任何操作
+				//     });
+				//   },
+				 // 退出登录方法
+				 logout() {
+					 // window.location.href = 'login.html';
+//使用Element UI的$confirm方法弹出确认对话框
+				   this.$confirm('您确定要退出登录吗？这将导致您丢失未保存的工作。', '退出登录', {
+				     // 选项对象
+				     confirmButtonText: '确定退出', // 确定按钮的文本
+				     cancelButtonText: '取消', // 取消按钮的文本
+				     type: 'warning', // 按钮类型，这里是警告类型
+				     center: true, // 文字居中
+				     // 其他Element UI confirm的选项...
+				   }).then(() => {
+					   sessionStorage.clear();
+					   localStorage.removeItem('isLoggedIn');
+				     // 用户点击确定，执行退出登录操作
+				     // 放置退出登录的逻辑，比如清除本地存储、跳转到登录页面等
+					  window.location.href = 'login.html'; 
+					//history.replaceState(null,'','login.html');
+				    
+					 this.$message.success('您已安全退出！');
+					 console.log('退出登录');
+				   }).catch(() => {
+				     // 用户点击取消，不执行任何操作
+				     console.log('取消退出');
+				   });
+				  },
+				},
+				created(){
+					//Vue对象创建完成时，执行的钩子函数
+					this.loadstudents()
+				}
+			
+		})
+		
+		</script>
+	</body>
+</html>
